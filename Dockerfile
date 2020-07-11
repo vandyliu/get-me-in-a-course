@@ -15,7 +15,7 @@ COPY . .
 # upgrade pip
 RUN pip install --upgrade pip
 
-# install selenium
+# install requirements
 RUN pip install -r requirements.txt
 
 ENTRYPOINT ["python", "./script.py"]
