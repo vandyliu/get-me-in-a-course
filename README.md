@@ -15,6 +15,8 @@ export USER=johndoe
 export PASSWORD=badpassword123
 ```
 
+Make sure to chmod +x ./run.sh
+
 To also get text notifications, you must also export:
 `PHONE_NUMBER=+1604XXXXXXX`
 `AWS_ACCESS_KEY_ID=ABCDEFGHILJK`
