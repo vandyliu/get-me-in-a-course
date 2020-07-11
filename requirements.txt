@@ -2,3 +2,4 @@ selenium==3.141.0
 python-dotenv==0.13.0
 requests==2.24.0
 beautifulsoup4==4.9.1
+boto3==1.14.20
