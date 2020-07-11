@@ -23,21 +23,22 @@ class SeatType(Enum):
 
 
 def send_notification(subject, course_no, section, phone_number):
-    client = boto3.client(
-        "sns",
-        region_name="us-west-2",
-        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-    )
-    message = "COURSE AVAILABLE!: {} {} {} has a spot available.".format(
-        subject, course_no, section
-    )
-    client.publish(
-        Message=json.dumps({"default": message}),
-        Subject="Course Available",
-        MessageStructure="json",
-        PhoneNumber=phone_number,
-    )
+    if os.getenv("AWS_ACCESS_KEY_ID") and os.getenv("AWS_SECRET_ACCESS_KEY") and phone_number:
+        client = boto3.client(
+            "sns",
+            region_name="us-west-2",
+            aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+        )
+        message = "COURSE AVAILABLE!: {} {} {} has a spot available.".format(
+            subject, course_no, section
+        )
+        client.publish(
+            Message=json.dumps({"default": message}),
+            Subject="Course Available",
+            MessageStructure="json",
+            PhoneNumber=phone_number,
+        )
 
 
 def get_course_link(subject, course_no, section):
