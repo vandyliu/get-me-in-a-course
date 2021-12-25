@@ -5,6 +5,7 @@ import time
 
 from enum import Enum
 
+import undetected_chromedriver as uc
 import boto3
 import requests
 from bs4 import BeautifulSoup
@@ -96,9 +97,13 @@ class Driver:
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--disable-dev-shm-usage")
-        self.driver = webdriver.Chrome(
-            options=chrome_options, executable_path=chromedriver_path
-        )
+        self.driver = uc.Chrome(options=chrome_options)
+        
+        # webdriver.Chrome(
+        #     options=chrome_options, executable_path=chromedriver_path
+        # )
+
+
         self.driver.implicitly_wait(10)
 
     def click_button(self, element):

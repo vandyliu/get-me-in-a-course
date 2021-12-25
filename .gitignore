@@ -2,3 +2,4 @@ venv/
 .envs/
 .vscode/
 .env
+user.env
