@@ -5,6 +5,7 @@ import time
 
 from enum import Enum
 
+import undetected_chromedriver as uc
 import boto3
 import requests
 from bs4 import BeautifulSoup
@@ -85,27 +86,23 @@ def setup():
 
 class Driver:
     def __init__(self):
-        if sys.platform == "win32":
-            chromedriver_path = (
-                "C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe"
-            )
-        else:
-            chromedriver_path = "chromedriver"
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--disable-dev-shm-usage")
-        self.driver = webdriver.Chrome(
-            options=chrome_options, executable_path=chromedriver_path
-        )
+        chrome_options.add_argument("--enable-javascript")
+        self.driver = uc.Chrome(options=chrome_options)
+    
         self.driver.implicitly_wait(10)
 
     def click_button(self, element):
         self.driver.execute_script("arguments[0].click();", element)
 
     def course_has_space(self, url, type_of_seats=SeatType.ALL):
-        page = requests.get(url)
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:20.0) Gecko/20100101 Firefox/20.0'}
+        
+        page = requests.get(url, headers=headers)
         soup = BeautifulSoup(page.content, features="html.parser")
         if type_of_seats == SeatType.ALL:
             look_for = "Total Seats Remaining:"
@@ -118,6 +115,7 @@ class Driver:
         user = os.getenv("USER")
         pw = os.getenv("PASSWORD")
         self.driver.get(url)
+
         try:
             self.driver.find_element_by_xpath('//*[@id="cwl-logout"]/form/input')
             # Logged in
@@ -138,6 +136,7 @@ class Driver:
 
             submit_button = self.driver.find_element_by_name("submit")
             self.click_button(submit_button)
+            
         # Needs to successfully login
         time.sleep(5)
         return True

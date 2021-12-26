@@ -6,10 +6,6 @@ WORKDIR /usr/src/app
 RUN echo "https://dl-4.alpinelinux.org/alpine/v3.10/main" >> /etc/apk/repositories && \
     echo "https://dl-4.alpinelinux.org/alpine/v3.10/community" >> /etc/apk/repositories
 
-# install chromedriver
-RUN apk update
-RUN apk add chromium chromium-chromedriver
-
 # upgrade pip
 RUN pip install --upgrade pip
 
