@@ -117,24 +117,24 @@ class Driver:
         self.driver.get(url)
 
         try:
-            self.driver.find_element_by_xpath('//*[@id="cwl-logout"]/form/input')
+            self.driver.find_element(By.XPATH,'//*[@id="cwl-logout"]/form/input')
             # Logged in
         except NoSuchElementException as e:
             # Not logged in
-            login_button = self.driver.find_element_by_xpath(
-                '//*[@id="cwl"]/form/input'
+            login_button = self.driver.find_element(
+                By.XPATH, '//*[@id="cwl"]/form/input'
             )
             self.click_button(login_button)
 
-            user_elem = self.driver.find_element_by_xpath('//*[@id="username"]')
+            user_elem = self.driver.find_element(By.XPATH, '//*[@id="username"]')
             user_elem.clear()
             user_elem.send_keys(user)
 
-            pw_elem = self.driver.find_element_by_xpath('//*[@id="password"]')
+            pw_elem = self.driver.find_element(By.XPATH, '//*[@id="password"]')
             pw_elem.clear()
             pw_elem.send_keys(pw)
 
-            submit_button = self.driver.find_element_by_name("submit")
+            submit_button = self.driver.find_element(By.NAME, "submit")
             self.click_button(submit_button)
             
         # Needs to successfully login
@@ -143,14 +143,14 @@ class Driver:
 
     def register_course(self, url):
         self.driver.get(url)
-        reg_button = self.driver.find_element_by_xpath("/html/body/div[2]/div[4]/a[2]")
+        reg_button = self.driver.find_element(By.XPATH, "/html/body/div[2]/div[4]/a[2]")
         self.click_button(reg_button)
         print("Register button pressed")
         time.sleep(5)
 
     def is_register_button_disabled(self, url):
         self.driver.get(url)
-        reg_button = self.driver.find_element_by_xpath("/html/body/div[2]/div[4]/a[2]")
+        reg_button = self.driver.find_element(By.XPATH, "/html/body/div[2]/div[4]/a[2]")
         # Register button should be disabled now because we are registered
         return "btn-disabled" in reg_button.get_attribute("class")
 
