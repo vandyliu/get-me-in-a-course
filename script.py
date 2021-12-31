@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import time
+import random
 
 from enum import Enum
 
@@ -99,11 +100,12 @@ class Driver:
     def click_button(self, element):
         self.driver.execute_script("arguments[0].click();", element)
 
-    def course_has_space(self, url, type_of_seats=SeatType.ALL):
+    def course_has_space(self, url, type_of_seats=SeatType.GENERAL):
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:20.0) Gecko/20100101 Firefox/20.0'}
         
         page = requests.get(url, headers=headers)
         soup = BeautifulSoup(page.content, features="html.parser")
+
         if type_of_seats == SeatType.ALL:
             look_for = "Total Seats Remaining:"
         elif type_of_seats == SeatType.GENERAL:
@@ -125,6 +127,8 @@ class Driver:
                 By.XPATH, '//*[@id="cwl"]/form/input'
             )
             self.click_button(login_button)
+
+            time.sleep(random.randint(5, 10))
 
             user_elem = self.driver.find_element(By.XPATH, '//*[@id="username"]')
             user_elem.clear()
@@ -167,9 +171,12 @@ def main():
     for course_name in courses:
         subject, course_no, section = tuple(course_name.split())
         url = get_course_link(subject, course_no, section)
+        time.sleep(random.randint(10,20))
         if f.course_has_space(url):
             print("There is space in {} {} {}.".format(subject, course_no, section))
+            time.sleep(random.randint(10, 20))
             f.login(url)
+            time.sleep(random.randint(10,20))
             f.register_course(url)
             if f.is_register_button_disabled(url):
                 print(
@@ -191,4 +198,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    while(True):
+        main()
