@@ -6,6 +6,7 @@ import random
 
 from enum import Enum
 
+from fake_useragent import UserAgent
 import undetected_chromedriver as uc
 import boto3
 import requests
@@ -101,7 +102,10 @@ class Driver:
         self.driver.execute_script("arguments[0].click();", element)
 
     def course_has_space(self, url, type_of_seats=SeatType.GENERAL):
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:20.0) Gecko/20100101 Firefox/20.0'}
+        ua = UserAgent()
+        userAgent = ua.random
+        print(userAgent)
+        headers = {'User-Agent': str(userAgent)}
         
         page = requests.get(url, headers=headers)
         soup = BeautifulSoup(page.content, features="html.parser")
