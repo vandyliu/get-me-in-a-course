@@ -24,7 +24,6 @@ class SeatType(Enum):
     ALL = "all"
     GENERAL = "general"
 
-
 def send_notification(subject, course_no, section, phone_number):
     if (
         os.getenv("AWS_ACCESS_KEY_ID")
@@ -46,7 +45,6 @@ def send_notification(subject, course_no, section, phone_number):
             MessageStructure="json",
             PhoneNumber=phone_number,
         )
-
 
 def get_course_link(subject, course_no, section):
     url = "https://courses.students.ubc.ca/cs/courseschedule?pname=subjarea&tname=subj-section&dept={}&course={}&section={}".format(
@@ -101,6 +99,7 @@ class Driver:
     def click_button(self, element):
         self.driver.execute_script("arguments[0].click();", element)
 
+    ## Change to SeatType.ALL for restricted seating and SeatType.GENERAL for general seating
     def course_has_space(self, url, type_of_seats=SeatType.GENERAL):
         ua = UserAgent()
         userAgent = ua.random
@@ -175,7 +174,7 @@ def main():
     for course_name in courses:
         subject, course_no, section = tuple(course_name.split())
         url = get_course_link(subject, course_no, section)
-        time.sleep(random.randint(10,20))
+        time.sleep(random.randint(30,60))
         if f.course_has_space(url):
             print("There is space in {} {} {}.".format(subject, course_no, section))
             time.sleep(random.randint(10, 20))
@@ -204,3 +203,4 @@ def main():
 if __name__ == "__main__":
     while(True):
         main()
+        time.sleep(random.randint(120,180))
