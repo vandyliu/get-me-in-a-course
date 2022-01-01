@@ -107,6 +107,7 @@ class Driver:
         headers = {'User-Agent': str(userAgent)}
         
         page = requests.get(url, headers=headers)
+        time.sleep(5)
         soup = BeautifulSoup(page.content, features="html.parser")
 
         if type_of_seats == SeatType.ALL:
@@ -204,3 +205,4 @@ if __name__ == "__main__":
     while(True):
         main()
         time.sleep(random.randint(120,180))
+        
