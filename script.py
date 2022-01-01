@@ -200,9 +200,7 @@ def main():
             print("No space in {} {} {}.".format(subject, course_no, section))
     f.quit()
 
-
 if __name__ == "__main__":
     while(True):
         main()
         time.sleep(random.randint(120,180))
-        
