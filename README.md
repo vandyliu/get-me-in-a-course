@@ -1,3 +1,4 @@
+# Get Me In A Course
 Python script that uses Selenium and BeautifulSoup4 to check if a course has a spot, and gets in them.
 
 Have a courses.txt in same directory as script.py.
