@@ -2,9 +2,12 @@ import json
 import os
 import sys
 import time
+import random
 
 from enum import Enum
 
+from fake_useragent import UserAgent
+import undetected_chromedriver as uc
 import boto3
 import requests
 from bs4 import BeautifulSoup
@@ -20,7 +23,6 @@ from selenium.webdriver.support import expected_conditions as EC
 class SeatType(Enum):
     ALL = "all"
     GENERAL = "general"
-
 
 def send_notification(subject, course_no, section, phone_number):
     if (
@@ -43,7 +45,6 @@ def send_notification(subject, course_no, section, phone_number):
             MessageStructure="json",
             PhoneNumber=phone_number,
         )
-
 
 def get_course_link(subject, course_no, section):
     url = "https://courses.students.ubc.ca/cs/courseschedule?pname=subjarea&tname=subj-section&dept={}&course={}&section={}".format(
@@ -85,28 +86,30 @@ def setup():
 
 class Driver:
     def __init__(self):
-        if sys.platform == "win32":
-            chromedriver_path = (
-                "C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe"
-            )
-        else:
-            chromedriver_path = "chromedriver"
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--disable-dev-shm-usage")
-        self.driver = webdriver.Chrome(
-            options=chrome_options, executable_path=chromedriver_path
-        )
+        chrome_options.add_argument("--enable-javascript")
+        self.driver = uc.Chrome(options=chrome_options)
+    
         self.driver.implicitly_wait(10)
 
     def click_button(self, element):
         self.driver.execute_script("arguments[0].click();", element)
 
-    def course_has_space(self, url, type_of_seats=SeatType.ALL):
-        page = requests.get(url)
+    ## Change to SeatType.ALL for restricted seating and SeatType.GENERAL for general seating
+    def course_has_space(self, url, type_of_seats=SeatType.GENERAL):
+        ua = UserAgent()
+        userAgent = ua.random
+        print(userAgent)
+        headers = {'User-Agent': str(userAgent)}
+        
+        page = requests.get(url, headers=headers)
+        time.sleep(5)
         soup = BeautifulSoup(page.content, features="html.parser")
+
         if type_of_seats == SeatType.ALL:
             look_for = "Total Seats Remaining:"
         elif type_of_seats == SeatType.GENERAL:
@@ -118,40 +121,44 @@ class Driver:
         user = os.getenv("USER")
         pw = os.getenv("PASSWORD")
         self.driver.get(url)
+
         try:
-            self.driver.find_element_by_xpath('//*[@id="cwl-logout"]/form/input')
+            self.driver.find_element(By.XPATH,'//*[@id="cwl-logout"]/form/input')
             # Logged in
         except NoSuchElementException as e:
             # Not logged in
-            login_button = self.driver.find_element_by_xpath(
-                '//*[@id="cwl"]/form/input'
+            login_button = self.driver.find_element(
+                By.XPATH, '//*[@id="cwl"]/form/input'
             )
             self.click_button(login_button)
 
-            user_elem = self.driver.find_element_by_xpath('//*[@id="username"]')
+            time.sleep(random.randint(5, 10))
+
+            user_elem = self.driver.find_element(By.XPATH, '//*[@id="username"]')
             user_elem.clear()
             user_elem.send_keys(user)
 
-            pw_elem = self.driver.find_element_by_xpath('//*[@id="password"]')
+            pw_elem = self.driver.find_element(By.XPATH, '//*[@id="password"]')
             pw_elem.clear()
             pw_elem.send_keys(pw)
 
-            submit_button = self.driver.find_element_by_name("submit")
+            submit_button = self.driver.find_element(By.NAME, "submit")
             self.click_button(submit_button)
+            
         # Needs to successfully login
         time.sleep(5)
         return True
 
     def register_course(self, url):
         self.driver.get(url)
-        reg_button = self.driver.find_element_by_xpath("/html/body/div[2]/div[4]/a[2]")
+        reg_button = self.driver.find_element(By.XPATH, "/html/body/div[2]/div[4]/a[2]")
         self.click_button(reg_button)
         print("Register button pressed")
         time.sleep(5)
 
     def is_register_button_disabled(self, url):
         self.driver.get(url)
-        reg_button = self.driver.find_element_by_xpath("/html/body/div[2]/div[4]/a[2]")
+        reg_button = self.driver.find_element(By.XPATH, "/html/body/div[2]/div[4]/a[2]")
         # Register button should be disabled now because we are registered
         return "btn-disabled" in reg_button.get_attribute("class")
 
@@ -168,9 +175,12 @@ def main():
     for course_name in courses:
         subject, course_no, section = tuple(course_name.split())
         url = get_course_link(subject, course_no, section)
+        time.sleep(random.randint(30,60))
         if f.course_has_space(url):
             print("There is space in {} {} {}.".format(subject, course_no, section))
+            time.sleep(random.randint(10, 20))
             f.login(url)
+            time.sleep(random.randint(10,20))
             f.register_course(url)
             if f.is_register_button_disabled(url):
                 print(
@@ -190,6 +200,7 @@ def main():
             print("No space in {} {} {}.".format(subject, course_no, section))
     f.quit()
 
-
 if __name__ == "__main__":
-    main()
+    while(True):
+        main()
+        time.sleep(random.randint(120,180))

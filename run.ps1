@@ -1,5 +1,5 @@
 $person=$args[0]
-if ($person -eq $null) {
+if ($null -eq $person) {
     $person = "vandy"
 }
 docker build -t courseubc:latest .
